@@ -5,19 +5,26 @@ on:
     branches: [main]
 
 jobs:
-  auth:
-    name: Authenticate using Workflow Identity Federation
+  build-and-push-to-artifact-registry:
+    name: Build and push to Artifact Registry
     runs-on: ubuntu-latest
 
     permissions:
       id-token: write
       contents: read
 
+    env:
+      IMAGE_NAME: hello-app
+      PROJECT_ID: cloud-core-376009
+
     steps:
       - id: checkout
-        uses: actions/checkout@v2
+        name: Checkout
+        uses: actions/checkout@v3
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
       - id: auth
+        name: Auth in GCP
         uses: google-github-actions/auth@v1
         with:
           token_format: access_token
@@ -25,21 +32,26 @@ jobs:
           service_account: ${{ secrets.GCP_WORKLOAD_IDENTITY_SA_EMAIL }}
 
       - id: login
+        name: Login to Artifact Registry
         uses: docker/login-action@v1
         with:
           registry: europe-north1-docker.pkg.dev
           username: oauth2accesstoken
           password: ${{ steps.auth.outputs.access_token }}
 
-  build:
-    name: Build Docker image
-    needs: [auth]
-    runs-on: ubuntu-latest
-
-    env:
-      IMAGE_NAME: hello-app
-      # PROJECT_ID: cloud-core-376009
-
-    steps:
       - id: build
+        name: Build Docker Image
         run: docker build -t $IMAGE_NAME:latest .
+
+      - name: Get tag
+        id: get-tag
+        run: echo ::set-output name=short_ref::${GITHUB_REF#refs/*/}
+
+      - id: docker-push-tagged
+        name: Tag Docker image and push to Google Artifact Registry
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: |
+            europe-north1-docker.pkg.dev/$PROJECT_ID/docker/hello-app:${{ steps.get-tag.outputs.short_ref }}
+            europe-north1-docker.pkg.dev/$PROJECT_ID/docker/hello-app:latest
