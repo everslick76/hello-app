@@ -43,15 +43,15 @@ jobs:
         name: Build Docker Image
         run: docker build -t $IMAGE_NAME:latest .
 
-      - name: Get tag
-        id: get-tag
+      - id: tag
+        name: Get tagged
         run: echo ::set-output name=short_ref::${GITHUB_REF#refs/*/}
 
-      - id: docker-push-tagged
-        name: Tag Docker image and push to Google Artifact Registry
+      - id: push
+        name: Push to Google Artifact Registry
         uses: docker/build-push-action@v2
         with:
           push: true
           tags: |
-            europe-north1-docker.pkg.dev/cloud-core-376009/docker/hello-app:${{ steps.get-tag.outputs.short_ref }}
-            europe-north1-docker.pkg.dev/cloud-core-376009/docker/hello-app:latest
+            europe-north1-docker.pkg.dev/${{ env.PROJECT_ID }}/docker/hello-app:${{ steps.tag.outputs.short_ref }}
+            europe-north1-docker.pkg.dev/${{ env.PROJECT_ID }}/docker/hello-app:latest
