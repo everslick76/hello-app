@@ -33,6 +33,7 @@ jobs:
 
   build:
     name: Build Docker image
+    needs: [auth]
     runs-on: ubuntu-latest
 
     env:
