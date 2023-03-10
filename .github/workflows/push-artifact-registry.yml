@@ -1,34 +1,43 @@
 name: Build and push docker image to Artifact Registry
+
 on:
   push:
     branches: [main]
+
 jobs:
-  run:
-    name: "Workload Identity Job"
+  build-and-push-to-artifact-registry:
+
+    name: Build and push to Artifact Registry
+    runs-on: ubuntu-latest
+    
     permissions:
       id-token: write
       contents: read
-    runs-on: "ubuntu-latest"
+
+    env:
+      IMAGE_NAME: hello-app
+      # PROJECT_ID: cloud-core-376009
+
     steps:
-      - name: "Auth in GCP"
-        id: "auth"
+      - id: checkout
+        name: Checkout
+        uses: actions/checkout@v2
+
+      - id: auth
+        name: Authenticate with Google Cloud
         uses: "google-github-actions/auth@v1"
         with:
-          token_format: "access_token"
+         token_format: access_token
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER_NAME }}
           service_account: ${{ secrets.GCP_WORKLOAD_IDENTITY_SA_EMAIL }}
 
-      - name: "Docker login"
-        run: |
-          echo '${{ steps.auth.outputs.access_token }}' | docker login -u oauth2accesstoken --password-stdin https://gcr.io
-  # build-push-artifact-registry:
-  #   name: Build and push to Artifact Registry
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     IMAGE_NAME: hello-app
-  #     PROJECT_ID: cloud-core-376009
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v2
-  #     - name: Build Docker Image
-  #       run: docker build -t $IMAGE_NAME:latest .
+      - name: Login to Artifact Registry
+        uses: docker/login-action@v1
+        with:
+          registry: europe-north1-docker.pkg.dev
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.access_token }}
+
+      - id: build
+        name: Build Docker Image
+        run: docker build -t $IMAGE_NAME:latest .
