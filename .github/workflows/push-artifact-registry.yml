@@ -6,7 +6,7 @@ on:
 
 jobs:
   auth:
-    name: Authenticate
+    name: Authenticate using Workflow Identity Federation
     runs-on: ubuntu-latest
 
     permissions:
@@ -32,12 +32,13 @@ jobs:
           password: ${{ steps.auth.outputs.access_token }}
 
   build:
-    name: Build Docker Image
+    name: Build Docker image
     runs-on: ubuntu-latest
 
     env:
       IMAGE_NAME: hello-app
       # PROJECT_ID: cloud-core-376009
 
+    steps:
       - id: build
         run: docker build -t $IMAGE_NAME:latest .
