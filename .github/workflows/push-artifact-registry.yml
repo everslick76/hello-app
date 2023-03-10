@@ -21,7 +21,6 @@ jobs:
       - id: checkout
         name: Checkout
         uses: actions/checkout@v3
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
       - id: auth
         name: Auth in GCP
