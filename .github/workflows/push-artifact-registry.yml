@@ -7,7 +7,7 @@ on:
 jobs:
   build-and-push-to-artifact-registry:
 
-    name: Build and push to Artifact Registry
+    name: "Build and push to Artifact Registry"
     runs-on: ubuntu-latest
     
     permissions:
@@ -19,15 +19,15 @@ jobs:
       # PROJECT_ID: cloud-core-376009
 
     steps:
-      - id: checkout
-        name: Checkout
-        uses: actions/checkout@v2
+      - id: "checkout"
+        name: "Checkout"
+        uses: "actions/checkout@v2"
 
-      - id: auth
-        name: Authenticate with Google Cloud
+      - id: "auth"
+        name: "Authenticate with Google Cloud"
         uses: "google-github-actions/auth@v1"
         with:
-         token_format: access_token
+         token_format: "access_token"
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER_NAME }}
           service_account: ${{ secrets.GCP_WORKLOAD_IDENTITY_SA_EMAIL }}
 
