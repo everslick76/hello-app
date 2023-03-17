@@ -24,6 +24,11 @@ jobs:
         name: Checkout
         uses: actions/checkout@v3
 
+      - id: build
+        name: Build Docker Image
+        run: docker build .
+        # run: docker build -t $IMAGE_NAME:latest .
+
       - id: auth
         name: Auth in GCP
         uses: google-github-actions/auth@v1
@@ -40,20 +45,15 @@ jobs:
           username: oauth2accesstoken
           password: ${{ steps.auth.outputs.access_token }}
 
-      - id: build
-        name: Build Docker Image
-        run: docker build .
-        # run: docker build -t $IMAGE_NAME:latest .
-
       - id: tag
         name: Get tagged
         run: echo "short_ref=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
 
-      # - id: push
-      #   name: Push to Google Artifact Registry
-      #   uses: docker/build-push-action@v2
-      #   with:
-      #     push: true
-      #     tags: |
-      #       europe-north1-docker.pkg.dev/${{ env.PROJECT_ID }}/docker/hello-app:${{ steps.tag.outputs.short_ref }}
-      #       europe-north1-docker.pkg.dev/${{ env.PROJECT_ID }}/docker/hello-app:latest
+      - id: push
+        name: Push to Google Artifact Registry
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: |
+            europe-north1-docker.pkg.dev/${{ env.PROJECT_ID }}/docker/hello-app:${{ steps.tag.outputs.short_ref }}
+            europe-north1-docker.pkg.dev/${{ env.PROJECT_ID }}/docker/hello-app:latest
