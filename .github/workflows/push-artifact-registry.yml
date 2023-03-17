@@ -47,7 +47,7 @@ jobs:
 
       - id: tag
         name: Get tagged
-        run: echo ::set-output name=short_ref::${GITHUB_REF#refs/*/}
+        run: echo "short_ref=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
 
       # - id: push
       #   name: Push to Google Artifact Registry
