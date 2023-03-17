@@ -41,3 +41,14 @@ jobs:
         with:
           push: true
           tags: europe-north1-docker.pkg.dev/${{ vars.PROJECT_ID }}/docker/hello-app:latest
+
+      - id: deploy
+        name: Deploy to Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v1
+        with:
+          service: hello-app
+          region: europe-north1
+          image: europe-north1-docker.pkg.dev/${{ vars.PROJECT_ID }}/docker/hello-app:latest #${{ github.sha }}
+
+      - name: Show Output
+        run: echo ${{ steps.deploy.outputs.url }}
