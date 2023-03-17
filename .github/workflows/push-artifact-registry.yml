@@ -26,7 +26,8 @@ jobs:
 
       - id: build
         name: Build Docker Image
-        run: docker build -t $IMAGE_NAME:latest .
+        run: docker build .
+        # run: docker build -t $IMAGE_NAME:latest .
 
       # - id: auth
       #   name: Auth in GCP
