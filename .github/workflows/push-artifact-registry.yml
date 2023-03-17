@@ -1,36 +1,26 @@
-name: Build and push docker image to Artifact Registry
+name: Build and push to Artifact Registry
 
 on:
   push:
-    branches: [main]
-    # tags:
-    #   - v*.*.*
+    tags:
+      - v*.*.*
 
 jobs:
-  build-and-push-to-artifact-registry:
-    name: Build and push to Artifact Registry
+  build-and-push:
+    name: Build and push
     runs-on: ubuntu-latest
 
     permissions:
       id-token: write
       contents: read
 
-    env:
-      # IMAGE_NAME: hello-app
-      PROJECT_ID: cloud-core-376009
-
     steps:
       - id: checkout
         name: Checkout
         uses: actions/checkout@v3
 
-      # - id: build
-      #   name: Build Docker Image
-      #   run: docker build .
-      # run: docker build -t $IMAGE_NAME:latest .
-
-      - id: auth
-        name: Auth in GCP
+      - id: authorize
+        name: Authorize using Workflow Identity Federation
         uses: google-github-actions/auth@v1
         with:
           token_format: access_token
@@ -43,18 +33,11 @@ jobs:
         with:
           registry: europe-north1-docker.pkg.dev
           username: oauth2accesstoken
-          password: ${{ steps.auth.outputs.access_token }}
-
-      # - id: tag
-      #   name: Get tagged
-      #   run: echo "short_ref=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
+          password: ${{ steps.authorize.outputs.access_token }}
 
       - id: push
-        name: Push to Google Artifact Registry
+        name: Build and push to Artifact Registry
         uses: docker/build-push-action@v4
         with:
           push: true
-          tags: europe-north1-docker.pkg.dev/${{ env.PROJECT_ID }}/docker/hello-app:latest
-          # tags: |
-          #   europe-north1-docker.pkg.dev/${{ env.PROJECT_ID }}/docker/hello-app:${{ steps.tag.outputs.short_ref }}
-          #   europe-north1-docker.pkg.dev/${{ env.PROJECT_ID }}/docker/hello-app:latest
+          tags: europe-north1-docker.pkg.dev/${{ vars.PROJECT_ID }}/docker/hello-app:latest
