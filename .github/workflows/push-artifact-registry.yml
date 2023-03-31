@@ -49,7 +49,7 @@ jobs:
           service: hello-app
           region: europe-north1
           image: europe-north1-docker.pkg.dev/${{ vars.PROJECT_ID }}/docker/hello-app:latest
-          metadata: service.yaml
+          flags: --service-account=hello-default-sa@cloud-core-376009.iam.gserviceaccount.com
 
       - name: Show Output
         run: echo ${{ steps.deploy.outputs.url }}
