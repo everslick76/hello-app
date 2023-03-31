@@ -1,0 +1,6 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: hello-app
+  annotations:
+    run.googleapis.com/service-account: hello-default-sa@cloud-core-376009.iam.gserviceaccount.com

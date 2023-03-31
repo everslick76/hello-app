@@ -48,7 +48,8 @@ jobs:
         with:
           service: hello-app
           region: europe-north1
-          image: europe-north1-docker.pkg.dev/${{ vars.PROJECT_ID }}/docker/hello-app:latest #${{ github.sha }}
+          image: europe-north1-docker.pkg.dev/${{ vars.PROJECT_ID }}/docker/hello-app:latest
+          metadata: service.yaml
 
       - name: Show Output
         run: echo ${{ steps.deploy.outputs.url }}
