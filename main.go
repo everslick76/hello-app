@@ -5,19 +5,19 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sync"
 
 	"cloud.google.com/go/pubsub"
 )
 
-// var (
-// 	topic *pubsub.Topic
+var (
 
-// 	// Messages received by this instance.
-// 	messagesMu sync.Mutex
-// 	messages   []string
-// )
+	// Messages received by this instance.
+	messagesMu sync.Mutex
+	messages   []string
+)
 
-// const maxMessages = 10
+const maxMessages = 10
 
 func main() {
 
@@ -44,13 +44,14 @@ func pushHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("Message received: %s", string(msg.Data))
+	messagesMu.Lock()
+	defer messagesMu.Unlock()
+	// Limit to ten.
+	message := string(msg.Data)
+	messages = append(messages, message)
+	if len(messages) > maxMessages {
+		messages = messages[len(messages)-maxMessages:]
+	}
 
-	// messagesMu.Lock()
-	// defer messagesMu.Unlock()
-	// // Limit to ten.
-	// messages = append(messages, string(msg.Message.Data))
-	// if len(messages) > maxMessages {
-	// 	messages = messages[len(messages)-maxMessages:]
-	// }
+	log.Printf("Message received: %s", message)
 }
