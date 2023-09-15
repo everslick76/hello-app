@@ -21,6 +21,9 @@ import (
 
 func main() {
 
+	log.SetFlags(log.Flags() &^ (log.Ldate | log.Ltime))
+	// log.SetFlags(log.LstdFlags | log.Lmicroseconds)
+
     http.HandleFunc("/", hello)
 	http.HandleFunc("/push", pushHandler)
     http.ListenAndServe(":8080", nil)
@@ -31,13 +34,9 @@ func hello(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello from hello-app!")
 }
 
-// type pushRequest struct {
-// 	now string
-// }
-
 func pushHandler(w http.ResponseWriter, r *http.Request) {
 
-	log.Println("Call to push endpoint received")
+	log.Printf("Call to push endpoint received: %s", r.Body)
 
 	msg := &pubsub.Message{}
 	if err := json.NewDecoder(r.Body).Decode(msg); err != nil {
