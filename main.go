@@ -6,8 +6,6 @@ import (
 	"log"
 	"net/http"
 	"sync"
-
-	"cloud.google.com/go/pubsub"
 )
 
 var (
@@ -34,11 +32,18 @@ func hello(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello from hello-app!")
 }
 
+type pushRequest struct {
+	Message struct {
+		Attributes map[string]string
+		Data       []byte
+		ID         string `json:"message_id"`
+	}
+	Subscription string
+}
+
 func pushHandler(w http.ResponseWriter, r *http.Request) {
 
-	log.Printf("Call to push endpoint received: %s", r.Body)
-
-	msg := &pubsub.Message{}
+	msg := &pushRequest{}
 	if err := json.NewDecoder(r.Body).Decode(msg); err != nil {
 		http.Error(w, fmt.Sprintf("Could not decode body: %v", err), http.StatusBadRequest)
 		return
@@ -47,11 +52,10 @@ func pushHandler(w http.ResponseWriter, r *http.Request) {
 	messagesMu.Lock()
 	defer messagesMu.Unlock()
 	// Limit to ten.
-	message := string(msg.Data)
-	messages = append(messages, message)
+	messages = append(messages, string(msg.Message.Data))
 	if len(messages) > maxMessages {
 		messages = messages[len(messages)-maxMessages:]
 	}
 
-	log.Printf("Message received: %s", message)
+	log.Printf("Message received: %s", string(msg.Message.Data))
 }
