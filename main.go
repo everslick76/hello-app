@@ -44,7 +44,7 @@ func pushHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("Message received: %s", msg.Data)
+	log.Printf("Message received: %s", string(msg.Data))
 
 	// messagesMu.Lock()
 	// defer messagesMu.Unlock()
