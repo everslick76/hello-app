@@ -37,6 +37,8 @@ func hello(w http.ResponseWriter, r *http.Request) {
 
 func pushHandler(w http.ResponseWriter, r *http.Request) {
 
+	log.Println("Call to push endpoint received")
+
 	msg := &pubsub.Message{}
 	if err := json.NewDecoder(r.Body).Decode(msg); err != nil {
 		http.Error(w, fmt.Sprintf("Could not decode body: %v", err), http.StatusBadRequest)
