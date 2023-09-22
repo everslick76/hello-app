@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"cloud.google.com/go/pubsub"
 )
@@ -57,6 +58,8 @@ func setupRest() {
 
     http.HandleFunc("/", hello)
 	http.HandleFunc("/push", pushHandler)
+	http.HandleFunc("/publish", publishHandler)
+
 }
 
 func hello(w http.ResponseWriter, r *http.Request) {
@@ -82,4 +85,33 @@ func pushHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Printf("Message received: %s", string(msg.Message.Data))
+}
+
+func publishHandler(w http.ResponseWriter, r *http.Request) {
+
+	n := 1
+	requests := r.URL.Query().Get("requests")
+	fmt.Sscan(requests, &n)
+
+	ctx := context.Background()
+
+	for i := 1; i <= n; i++ {
+
+		currentTime := time.Now().String()
+
+		msg := &pubsub.Message{
+			Data: []byte(currentTime),
+		}
+	
+		if _, err := topic.Publish(ctx, msg).Get(ctx); err != nil {
+			http.Error(w, fmt.Sprintf("Could not publish message: %v", err), http.StatusBadRequest)
+			return
+		}
+	
+		log.Printf("Message published: " + string(msg.Data))
+	}
+
+	log.Printf("%s Message(s) published", requests)
+
+	fmt.Fprint(w, "Message(s) published: " + requests)
 }
