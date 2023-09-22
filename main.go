@@ -42,7 +42,6 @@ func main() {
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		log.Fatal(err)
 	}
-	
 }
 
 func setupLogging() {
@@ -53,9 +52,8 @@ func setupLogging() {
 func setupRest() {
 
     http.HandleFunc("/", hello)
-	http.HandleFunc("/push", pushHandler)
 	http.HandleFunc("/publish", publishHandler)
-
+	http.HandleFunc("/push", pushHandler)
 }
 
 func hello(w http.ResponseWriter, r *http.Request) {
