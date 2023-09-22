@@ -19,7 +19,7 @@ func main() {
 
 	setupLogging()
 
-	setupPubSub()
+	// setupPubSub()
 
 	setupRest()
 
