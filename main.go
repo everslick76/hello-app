@@ -19,24 +19,9 @@ func main() {
 
 	setupLogging()
 
-	// setupPubSub()
-
 	setupRest()
 
-	// open up for business
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		log.Fatal(err)
-	}
-	
-}
-
-func setupLogging() {
-
-	log.SetFlags(log.Flags() &^ (log.Ldate | log.Ltime))
-}
-
-func setupPubSub() {
-
+	// setup pubsub
 	ctx := context.Background()
 
 	client, err := pubsub.NewClient(ctx, "cloud-core-376009")
@@ -52,6 +37,17 @@ func setupPubSub() {
 	if err != nil || !exists {
 		log.Fatal(err)
 	}
+
+	// open up for business
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		log.Fatal(err)
+	}
+	
+}
+
+func setupLogging() {
+
+	log.SetFlags(log.Flags() &^ (log.Ldate | log.Ltime))
 }
 
 func setupRest() {
@@ -110,8 +106,6 @@ func publishHandler(w http.ResponseWriter, r *http.Request) {
 	
 		log.Printf("Message published: " + string(msg.Data))
 	}
-
-	log.Printf("%s Message(s) published", requests)
 
 	fmt.Fprint(w, "Message(s) published: " + requests)
 }
