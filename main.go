@@ -1,20 +1,62 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+
+	"cloud.google.com/go/pubsub"
+)
+
+var (
+	topic *pubsub.Topic
 )
 
 func main() {
 
+	setupLogging()
+
+	setupPubSub()
+
+	setupRest()
+
+	// open up for business
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		log.Fatal(err)
+	}
+	
+}
+
+func setupLogging() {
+
 	log.SetFlags(log.Flags() &^ (log.Ldate | log.Ltime))
-	// log.SetFlags(log.LstdFlags | log.Lmicroseconds)
+}
+
+func setupPubSub() {
+
+	ctx := context.Background()
+
+	client, err := pubsub.NewClient(ctx, "cloud-core-376009")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Close()
+
+	topic = client.Topic("hello")
+
+	// check if the topic exists
+	exists, err := topic.Exists(ctx)
+	if err != nil || !exists {
+		log.Fatal(err)
+	}
+}
+
+func setupRest() {
 
     http.HandleFunc("/", hello)
 	http.HandleFunc("/push", pushHandler)
-    http.ListenAndServe(":8080", nil)
 }
 
 func hello(w http.ResponseWriter, r *http.Request) {
