@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"time"
 
@@ -97,6 +98,8 @@ func publishHandler(w http.ResponseWriter, r *http.Request) {
 
 	for i := 1; i <= n; i++ {
 
+		time.Sleep(randomDuration(2, 5))
+
 		currentTime := time.Now().String()
 
 		msg := &pubsub.Message{
@@ -117,4 +120,8 @@ func publishHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(msg)
+}
+
+func randomDuration(min int, max int) time.Duration {
+	return time.Duration(rand.Intn(max - min) + min) * time.Second
 }
