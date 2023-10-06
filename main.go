@@ -87,6 +87,8 @@ func pushHandler(w http.ResponseWriter, r *http.Request) {
 
 func publishHandler(w http.ResponseWriter, r *http.Request) {
 
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
+
 	n := 1
 	requests := r.URL.Query().Get("requests")
 	fmt.Sscan(requests, &n)
