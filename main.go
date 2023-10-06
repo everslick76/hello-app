@@ -110,7 +110,7 @@ func publishHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	msg := &jsonResult{
-		Message: fmt.Sprintf("Could not publish message: %v", n),
+		Message: fmt.Sprintf("Message(s) published: %v", n),
 	}
 
 	w.Header().Set("Content-Type", "application/json")
