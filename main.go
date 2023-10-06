@@ -105,5 +105,5 @@ func publishHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Message published: " + string(msg.Data))
 	}
 
-	fmt.Fprint(w, "Message(s) published: " + requests)
+	fmt.Fprintln(w, "Message(s) published: ", n)
 }
