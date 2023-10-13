@@ -7,8 +7,8 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
-	"time"
 	"slices"
+	"time"
 
 	"cloud.google.com/go/pubsub"
 )
@@ -95,6 +95,8 @@ func publishHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", origin)
 	}
 
+	name := r.URL.Query().Get("name")
+
 	n := 1
 	requests := r.URL.Query().Get("requests")
 	fmt.Sscan(requests, &n)
@@ -105,10 +107,8 @@ func publishHandler(w http.ResponseWriter, r *http.Request) {
 
 		time.Sleep(randomDuration(2, 5))
 
-		currentTime := time.Now().String()
-
 		msg := &pubsub.Message{
-			Data: []byte(currentTime),
+			Data: []byte(name),
 		}
 	
 		if _, err := topic.Publish(ctx, msg).Get(ctx); err != nil {
