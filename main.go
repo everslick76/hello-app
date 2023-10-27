@@ -17,11 +17,17 @@ var (
 	topic *pubsub.Topic
 )
 
+func init() {
+
+	log.SetFlags(log.Flags() &^ (log.Ldate | log.Ltime))
+}
+
 func main() {
 
-	setupLogging()
-
-	setupRest()
+	http.HandleFunc("/", hello)
+	http.HandleFunc("/publish", publishHandler)
+	http.HandleFunc("/push", pushHandler)
+	http.HandleFunc("/chart", chartHandler)
 
 	// setup pubsub
 	ctx := context.Background()
@@ -46,18 +52,6 @@ func main() {
 	}
 }
 
-func setupLogging() {
-
-	log.SetFlags(log.Flags() &^ (log.Ldate | log.Ltime))
-}
-
-func setupRest() {
-
-    http.HandleFunc("/", hello)
-	http.HandleFunc("/publish", publishHandler)
-	http.HandleFunc("/push", pushHandler)
-}
-
 func hello(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprintf(w, "Hello from hello-app!")
@@ -76,6 +70,17 @@ type jsonResult struct {
 	Message string `json:"message"`
 }
 
+func chartHandler(w http.ResponseWriter, r *http.Request) {
+
+	m := make(map[string]int)
+	m[""] = 0
+
+	if err := json.NewDecoder(r.Body).Decode(m); err != nil {
+		http.Error(w, fmt.Sprintf("Could not decode body: %v", err), http.StatusBadRequest)
+		return
+	}
+}
+
 func pushHandler(w http.ResponseWriter, r *http.Request) {
 
 	msg := &pushRequest{}
@@ -89,9 +94,9 @@ func pushHandler(w http.ResponseWriter, r *http.Request) {
 
 func publishHandler(w http.ResponseWriter, r *http.Request) {
 
-	origin := r.Header.Get("Origin");
+	origin := r.Header.Get("Origin")
 	allowed := []string{"http://localhost:3000", "https://storage.googleapis.com"}
-	if (slices.Contains(allowed, origin)) {
+	if slices.Contains(allowed, origin) {
 		w.Header().Set("Access-Control-Allow-Origin", origin)
 	}
 
@@ -110,12 +115,12 @@ func publishHandler(w http.ResponseWriter, r *http.Request) {
 		msg := &pubsub.Message{
 			Data: []byte(name),
 		}
-	
+
 		if _, err := topic.Publish(ctx, msg).Get(ctx); err != nil {
 			http.Error(w, fmt.Sprintf("Could not publish message: %v", err), http.StatusBadRequest)
 			return
 		}
-	
+
 		log.Printf("Message published: " + string(msg.Data))
 	}
 
@@ -128,5 +133,5 @@ func publishHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func randomDuration(min int, max int) time.Duration {
-	return time.Duration(rand.Intn(max - min) + min) * time.Second
+	return time.Duration(rand.Intn(max-min)+min) * time.Second
 }
