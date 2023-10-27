@@ -72,6 +72,12 @@ type jsonResult struct {
 
 func chartHandler(w http.ResponseWriter, r *http.Request) {
 
+	origin := r.Header.Get("Origin")
+	allowed := []string{"http://localhost:3000", "https://storage.googleapis.com"}
+	if slices.Contains(allowed, origin) {
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+	}
+
 	m := make(map[string]int)
 	m[" "] = 0
 
