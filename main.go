@@ -82,10 +82,7 @@ func chartHandler(w http.ResponseWriter, r *http.Request) {
 	m := make(map[string]int)
 	m["a"] = 1
 
-	if err := json.NewDecoder(r.Body).Decode(m); err != nil {
-		http.Error(w, fmt.Sprintf("Could not decode body: %v", err), http.StatusBadRequest)
-		return
-	}
+	json.NewEncoder(w).Encode(m)
 }
 
 func pushHandler(w http.ResponseWriter, r *http.Request) {
