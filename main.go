@@ -77,9 +77,10 @@ func chartHandler(w http.ResponseWriter, r *http.Request) {
 	if slices.Contains(allowed, origin) {
 		w.Header().Set("Access-Control-Allow-Origin", origin)
 	}
+	w.Header().Set("Content-Type", "application/json")
 
 	m := make(map[string]int)
-	m[" "] = 0
+	m["a"] = 1
 
 	if err := json.NewDecoder(r.Body).Decode(m); err != nil {
 		http.Error(w, fmt.Sprintf("Could not decode body: %v", err), http.StatusBadRequest)
