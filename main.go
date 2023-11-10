@@ -81,6 +81,7 @@ func chartHandler(w http.ResponseWriter, r *http.Request) {
 
 	m := make(map[string]int)
 	m["a"] = 1
+	m["b"] = 2
 
 	json.NewEncoder(w).Encode(m)
 }
