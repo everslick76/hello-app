@@ -15,11 +15,17 @@ import (
 
 var (
 	topic *pubsub.Topic
+	m     map[string]int
 )
 
 func init() {
 
 	log.SetFlags(log.Flags() &^ (log.Ldate | log.Ltime))
+
+	m = make(map[string]int)
+	m["Bengt"] = 4
+	m["Sven"] = 2
+	m["Nils"] = 3
 }
 
 func main() {
@@ -79,10 +85,6 @@ func chartHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 
-	m := make(map[string]int)
-	m["a"] = 1
-	m["b"] = 2
-
 	json.NewEncoder(w).Encode(m)
 }
 
@@ -116,6 +118,9 @@ func publishHandler(w http.ResponseWriter, r *http.Request) {
 	for i := 1; i <= n; i++ {
 
 		time.Sleep(randomDuration(2, 5))
+
+		// add to map
+		m[name]++
 
 		msg := &pubsub.Message{
 			Data: []byte(name),
