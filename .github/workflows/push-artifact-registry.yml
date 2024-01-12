@@ -12,6 +12,9 @@ jobs:
   build-and-push:
     name: Build and push
     runs-on: ubuntu-latest
+    env:
+      REGION: europe-west3
+      APP_NAME: ${{ github.event.repository.name }}
 
     permissions:
       id-token: write
@@ -34,7 +37,7 @@ jobs:
         name: Login to Artifact Registry
         uses: docker/login-action@v2
         with:
-          registry: europe-north1-docker.pkg.dev
+          registry: ${{ env.REGION }}-docker.pkg.dev
           username: oauth2accesstoken
           password: ${{ steps.authorize.outputs.access_token }}
 
@@ -43,16 +46,16 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          tags: europe-north1-docker.pkg.dev/${{ vars.PROJECT_ID }}/docker/hello-app:latest
+          tags: ${{ env.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/docker/${{ env.APP_NAME }}:latest
 
       - id: deploy
         name: Deploy to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v1
         with:
-          service: hello-app
-          region: europe-north1
-          image: europe-north1-docker.pkg.dev/${{ vars.PROJECT_ID }}/docker/hello-app:latest
-          flags: --service-account=hello-default-sa@cloud-core-376009.iam.gserviceaccount.com
+          service: ${{ env.APP_NAME }}
+          region: ${{ env.REGION }}
+          image: ${{ env.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/docker/${{ env.APP_NAME }}:latest
+          flags: --service-account=hello-default-sa@${{ vars.PROJECT_ID }}.iam.gserviceaccount.com
 
       - name: Show Output
         run: echo ${{ steps.deploy.outputs.url }}
